@@ -12,8 +12,8 @@ var catalog Catalog
 type Course struct {
 	Name          string
 	Prerequisites []string
-	IsPending     bool `json:"-"` //ignore this field when decoding json
-	IsHandled     bool `json:"-"` //ignore this field when decoding json
+	isPending     bool
+	isHandled     bool
 }
 
 func load(filename string) []Course {
@@ -51,23 +51,23 @@ func (catalog Catalog) processCourseName(courseName string) {
 
 	course := catalog[courseName]
 
-	if course.IsHandled {
+	if course.isHandled {
 		return
 	}
 
-	if course.IsPending {
+	if course.isPending {
 		panic("CYCLICAL" + course.Name)
 	}
 
-	course.IsPending = true
+	course.isPending = true
 	for _, prerequisite := range course.Prerequisites {
 		prerequisiteCourseName := catalog[prerequisite].Name
 		catalog.processCourseName(prerequisiteCourseName)
 	}
-	course.IsPending = false
+	course.isPending = false
 
 	catalog.handleCourseName(courseName)
-	course.IsHandled = true
+	course.isHandled = true
 
 }
 
