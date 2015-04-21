@@ -18,6 +18,16 @@ func (cat Catalog) GetCourse(name string) *Course {
 	return cat.m[name]
 }
 
+func (cat Catalog) CourseNames() []string {
+	keys := make([]string, len(cat.m))
+	i := 0
+	for key := range cat.m {
+		keys[i] = key
+		i += 1
+	}
+	return keys
+}
+
 func New(courses []Course) *Catalog {
 	cat := new(Catalog)
 	cat.m = make(map[string]*Course)

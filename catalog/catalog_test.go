@@ -22,7 +22,16 @@ func TestNew(t *testing.T) {
 	if cat != cat {
 		t.Errorf(`cat != cat`)
 	}
+}
 
+func TestCourseNames(t *testing.T) {
+	cat := catalog.New(courses)
+	expected := []string{"Biology 1", "Biology 2"}
+	for i, name := range cat.CourseNames() {
+		if name != expected[i] {
+			t.Errorf("Expected %v to equal %v", name, expected[i])
+		}
+	}
 }
 
 func TestGetCourse(t *testing.T) {
