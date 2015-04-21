@@ -14,11 +14,11 @@ type Catalog struct {
 	m map[string]*Course
 }
 
-func (cat Catalog) GetCourse(name string) *Course {
+func (cat *Catalog) GetCourse(name string) *Course {
 	return cat.m[name]
 }
 
-func (cat Catalog) CourseNames() []string {
+func (cat *Catalog) CourseNames() []string {
 	keys := make([]string, len(cat.m))
 	i := 0
 	for key := range cat.m {
