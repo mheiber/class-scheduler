@@ -1,18 +1,21 @@
-package main
+package schedule
 
 import (
 	"bitbucket.org/maxheiber/coding-challenge/catalog"
-	// "errors"
-	// "encoding/json"
 	"fmt"
-	// "os"
+	"io"
 )
 
 type scheduler struct {
 	*catalog.Catalog
+	w         io.Writer
 	isHandled map[string]bool
 	isPending map[string]bool
-	schedule  []string
+}
+
+func (s *scheduler) writeln(str string) {
+	line := []byte(str + "\n")
+	s.w.Write(line)
 }
 
 func (s *scheduler) ProcessCourseName(courseName string) error {
@@ -43,32 +46,32 @@ func (s *scheduler) ProcessCourseName(courseName string) error {
 
 	s.isPending[courseName] = false
 
-	s.schedule = append(s.schedule, courseName)
+	s.writeln(courseName)
 
 	s.isHandled[courseName] = true
 
 	return nil
 }
 
-func FromCatalog(cat *catalog.Catalog) (schedule []string, err error) {
+func Schedule(w io.Writer, cat *catalog.Catalog) error {
 
 	courseNames := cat.CourseNames()
 	length := len(courseNames)
 
 	s := &scheduler{
 		cat,
+		w,
 		make(map[string]bool, length),
 		make(map[string]bool, length),
-		make([]string, 0, length),
 	}
 
 	for _, courseName := range courseNames {
 		err := s.ProcessCourseName(courseName)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 	}
 
-	return s.schedule, nil
+	return nil
 }

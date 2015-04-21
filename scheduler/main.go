@@ -2,6 +2,7 @@ package main
 
 import (
 	"bitbucket.org/maxheiber/coding-challenge/catalog"
+	"bitbucket.org/maxheiber/coding-challenge/schedule"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -28,17 +29,11 @@ func main() {
 		os.Exit(2)
 	}
 
-	var schedule []string
-
 	//This is the most important part. See schedule.go
-	schedule, err = FromCatalog(cat)
+	err = schedule.Schedule(os.Stdout, cat)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
 		os.Exit(2)
-	}
-
-	for _, courseName := range schedule {
-		fmt.Println(courseName)
 	}
 
 }
