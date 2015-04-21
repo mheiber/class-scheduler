@@ -40,14 +40,13 @@ func New(courses []Course) *Catalog {
 }
 
 func UnmarshalJSON(cat *Catalog, data []byte) error {
-
-	var courses []Course
+	courses := make([]Course, 1)
 	err := json.Unmarshal(data, &courses)
 	if err != nil {
 		return errors.New("Error: Invalid course list. Each course must have a name and an array of prerequisites")
 	}
-
-	cat = New(courses)
+	//pointer that is passed in will point to the new Catalog
+	*cat = *New(courses)
 
 	return nil
 }

@@ -45,15 +45,16 @@ func TestGetCourse(t *testing.T) {
 func TestUnmarshalJSON(t *testing.T) {
 	data, err := json.Marshal(courses)
 	if err != nil {
-		t.Errorf("Error: Bad test design. Couldn't marshall fixture %v\n", courses)
+		t.Errorf("Error: Bad test design. Couldn't marshal fixture %v\n", courses)
 	}
 	cat := new(catalog.Catalog)
 	err = catalog.UnmarshalJSON(cat, data)
-
-	//test that courses are accessible
-	course1 := cat.GetCourse("course1")
-	if course1 != course1 {
-		t.Errorf(`course1 != course1`)
+	if err != nil {
+		t.Errorf("Error: can't unmarshall course", err)
+	}
+	//test that the catalog contains multiple courses
+	if len(cat.CourseNames()) < 2 {
+		t.Errorf(`len(cat.CourseNames() < 2`)
 	}
 	if err != nil {
 		t.Errorf("%v\n", err)
