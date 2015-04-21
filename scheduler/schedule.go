@@ -2,45 +2,73 @@ package main
 
 import (
 	"bitbucket.org/maxheiber/coding-challenge/catalog"
-	//"errors"
+	// "errors"
 	// "encoding/json"
 	"fmt"
+	// "os"
 )
 
-var isHandled = make(map[string]bool)
-
-var isPending = make(map[string]bool)
-
-func handleCourseName(courseName string) {
-	fmt.Printf("Handling: %v\n", courseName)
+type scheduler struct {
+	*catalog.Catalog
+	isHandled map[string]bool
+	isPending map[string]bool
+	schedule  []string
 }
 
-func processCourseName(cat *catalog.Catalog, courseName string) {
+func (s *scheduler) ProcessCourseName(courseName string) error {
 
-	course := cat.GetCourse(courseName)
+	course := s.GetCourse(courseName)
 
-	if isHandled[courseName] {
-		return
+	if s.isHandled[courseName] {
+		return nil
 	}
 
-	if isPending[courseName] {
-		panic("CYCLICAL" + course.Name)
+	if s.isPending[courseName] {
+		err := fmt.Errorf("Error: Cyclical dependency. Taking course \"%v\" requires first taking course \"%v\"\n", courseName, courseName)
+		return err
 	}
 
-	isPending[course.Name] = true
+	s.isPending[course.Name] = true
 	for _, prerequisite := range course.Prerequisites {
-		prerequisiteCourseName := cat.GetCourse(prerequisite).Name
-		processCourseName(cat, prerequisiteCourseName)
+		prerequisiteCourse := s.GetCourse(prerequisite)
+		if prerequisiteCourse == nil {
+			return fmt.Errorf("Error: \"%v\" is listed as a prerequisite of \"%v\" but is not in the list of courses\n", prerequisite, course.Name)
+		}
+
+		err := s.ProcessCourseName(prerequisiteCourse.Name)
+		if err != nil {
+			return err
+		}
 	}
-	isPending[courseName] = false
 
-	handleCourseName(courseName)
-	isHandled[courseName] = true
+	s.isPending[courseName] = false
 
+	s.schedule = append(s.schedule, courseName)
+
+	s.isHandled[courseName] = true
+
+	return nil
 }
 
-func Schedule(cat *catalog.Catalog) {
-	for _, courseName := range cat.CourseNames() {
-		processCourseName(cat, courseName)
+func FromCatalog(cat *catalog.Catalog) (schedule []string, err error) {
+
+	courseNames := cat.CourseNames()
+	length := len(courseNames)
+
+	s := &scheduler{
+		cat,
+		make(map[string]bool, length),
+		make(map[string]bool, length),
+		make([]string, 0, length),
 	}
+
+	for _, courseName := range courseNames {
+		err := s.ProcessCourseName(courseName)
+		if err != nil {
+			return nil, err
+		}
+
+	}
+
+	return s.schedule, nil
 }

@@ -2,8 +2,6 @@ package main
 
 import (
 	"bitbucket.org/maxheiber/coding-challenge/catalog"
-	//"errors"
-	// "encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -17,11 +15,30 @@ func main() {
 	}
 	jsonFile := os.Args[1]
 
-	data, _ := ioutil.ReadFile(jsonFile)
+	data, err := ioutil.ReadFile(jsonFile)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: Couldn't open file %v\n", err)
+		os.Exit(2)
+	}
 
 	cat := new(catalog.Catalog)
-	_ = catalog.UnmarshalJSON(cat, data)
+	err = catalog.UnmarshalJSON(cat, data)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error:%v\n", err)
+		os.Exit(2)
+	}
 
-	schedule(cat)
+	var schedule []string
+
+	//This is the most important part. See schedule.go
+	schedule, err = FromCatalog(cat)
+	if err != nil {
+		fmt.Fprint(os.Stderr, err)
+		os.Exit(2)
+	}
+
+	for _, courseName := range schedule {
+		fmt.Println(courseName)
+	}
 
 }
