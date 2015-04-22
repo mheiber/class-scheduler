@@ -1,5 +1,9 @@
 package schedule
 
+// schedule.Generate takes a catalog and writes
+// a list of courses in order so that all of the
+// prerequistes will be satisfied
+
 import (
 	"bitbucket.org/maxheiber/coding-challenge/catalog"
 	"fmt"
@@ -61,8 +65,8 @@ func Generate(w io.Writer, cat *catalog.Catalog) error {
 	s := &scheduler{
 		cat,
 		w,
-		make(map[string]bool, length),
-		make(map[string]bool, length),
+		make(map[string]bool, length), //record of which courses have been taken
+		make(map[string]bool, length), //record of current course for which we're satisfying prereqs
 	}
 
 	for _, courseName := range courseNames {

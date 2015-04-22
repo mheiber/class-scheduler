@@ -1,5 +1,9 @@
 package catalog
 
+// A course consists of a name and a list of prerequisites.
+// A catalog is a mapping from course names to courses.
+// A catalog can be unmarshalled from a json array of courses
+
 import (
 	"encoding/json"
 	"errors"
