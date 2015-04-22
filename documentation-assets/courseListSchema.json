@@ -1,0 +1,22 @@
+{
+	"$schema": "not available",
+	"title": "Course list",
+	"type": "array",
+	"items": {
+		"title": "Course",
+		"properties": {
+			"name" : {
+				"description": "Identifies a course",
+				"type": "string"
+			},
+			"prerequisites": {
+				"description": "names of prerequisite courses",
+				"type" :  "array",
+				"items" : {
+					"title": "Course name",
+					"type": "string"
+				}
+			}
+		}
+	}
+}

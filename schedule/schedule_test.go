@@ -7,6 +7,7 @@ import (
 	// "fmt"
 	"github.com/mheiber/golang-utils/stringwriter"
 	"io/ioutil"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -156,7 +157,7 @@ func genTestCatalog(courseCount int) *catalog.Catalog {
 	courses := make([]catalog.Course, 0, courseCount)
 
 	for i := courseCount - 1; i >= 0; i-- {
-		crse := catalog.Course{Name: string(i), Prerequisites: names(courses)}
+		crse := catalog.Course{Name: strconv.Itoa(i), Prerequisites: names(courses)}
 		courses = append(courses, crse)
 	}
 
