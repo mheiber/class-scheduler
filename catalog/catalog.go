@@ -11,7 +11,8 @@ type Course struct {
 }
 
 type Catalog struct {
-	m map[string]*Course
+	m           map[string]*Course
+	courseNames []string
 }
 
 func (cat *Catalog) GetCourse(name string) *Course {
@@ -19,21 +20,16 @@ func (cat *Catalog) GetCourse(name string) *Course {
 }
 
 func (cat *Catalog) CourseNames() []string {
-	keys := make([]string, len(cat.m))
-	i := 0
-	for key := range cat.m {
-		keys[i] = key
-		i += 1
-	}
-	return keys
+	return cat.courseNames
 }
 
 func New(courses []Course) *Catalog {
 	cat := new(Catalog)
 	cat.m = make(map[string]*Course)
-
+	cat.courseNames = make([]string, 0, len(courses))
 	for i, course := range courses {
 		cat.m[course.Name] = &courses[i]
+		cat.courseNames = append(cat.courseNames, course.Name)
 	}
 
 	return cat
