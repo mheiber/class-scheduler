@@ -3,8 +3,9 @@ package schedule_test
 import (
 	"bitbucket.org/maxheiber/coding-challenge/catalog"
 	"bitbucket.org/maxheiber/coding-challenge/schedule"
-	"github.com/mheiber/golang-utils/stringwriter"
 	// "fmt"
+	"bytes"
+	"github.com/mheiber/golang-utils/stringwriter"
 	"io/ioutil"
 	"strings"
 	"testing"
@@ -101,4 +102,63 @@ func testPrereqsSatisfied(cat *catalog.Catalog, results []string, t *testing.T) 
 			}
 		}
 	}
+}
+
+var testCat1000 = genTestCatalog(1000)
+
+func BenchmarkSchedule1000(b *testing.B) {
+	cat := testCat1000
+	buf := new(bytes.Buffer)
+	schedule.Generate(buf, cat)
+}
+
+var testCat2000 = genTestCatalog(2000)
+
+func BenchmarkSchedule2000(b *testing.B) {
+	cat := testCat2000
+	buf := new(bytes.Buffer)
+	schedule.Generate(buf, cat)
+}
+
+var testCat4000 = genTestCatalog(4000)
+
+func BenchmarkSchedule4000(b *testing.B) {
+	cat := testCat4000
+	buf := new(bytes.Buffer)
+	schedule.Generate(buf, cat)
+}
+
+var testCat8000 = genTestCatalog(8000)
+
+func BenchmarkSchedule8000(b *testing.B) {
+	cat := testCat8000
+	buf := new(bytes.Buffer)
+	schedule.Generate(buf, cat)
+}
+
+var testCat16000 = genTestCatalog(16000)
+
+func BenchmarkSchedule16000(b *testing.B) {
+	cat := testCat16000
+	buf := new(bytes.Buffer)
+	schedule.Generate(buf, cat)
+}
+
+func names(courses []catalog.Course) []string {
+	names := make([]string, 0, len(courses))
+	for _, crse := range courses {
+		names = append(names, crse.Name)
+	}
+	return names
+}
+
+func genTestCatalog(courseCount int) *catalog.Catalog {
+	courses := make([]catalog.Course, 0, courseCount)
+
+	for i := courseCount - 1; i >= 0; i-- {
+		crse := catalog.Course{Name: string(i), Prerequisites: names(courses)}
+		courses = append(courses, crse)
+	}
+
+	return catalog.New(courses)
 }
