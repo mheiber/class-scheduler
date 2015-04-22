@@ -1,14 +1,14 @@
 package schedule
 
-// schedule.Generate takes a catalog and writes
-// a list of courses in order so that all of the
-// prerequistes will be satisfied
-
 import (
 	"bitbucket.org/maxheiber/coding-challenge/catalog"
 	"fmt"
 	"io"
 )
+
+// schedule.Generate takes a catalog and writes
+// a list of courses in order so that all of the
+// prerequistes will be satisfied
 
 type scheduler struct {
 	*catalog.Catalog

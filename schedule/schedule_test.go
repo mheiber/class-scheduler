@@ -3,8 +3,8 @@ package schedule_test
 import (
 	"bitbucket.org/maxheiber/coding-challenge/catalog"
 	"bitbucket.org/maxheiber/coding-challenge/schedule"
-	// "fmt"
 	"bytes"
+	// "fmt"
 	"github.com/mheiber/golang-utils/stringwriter"
 	"io/ioutil"
 	"strings"
