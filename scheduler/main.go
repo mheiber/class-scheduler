@@ -30,7 +30,7 @@ func main() {
 	}
 
 	//This is the most important part. See schedule.go
-	err = schedule.Schedule(os.Stdout, cat)
+	err = schedule.Generate(os.Stdout, cat)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
 		os.Exit(2)

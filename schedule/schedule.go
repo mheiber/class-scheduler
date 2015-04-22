@@ -53,7 +53,7 @@ func (s *scheduler) ProcessCourseName(courseName string) error {
 	return nil
 }
 
-func Schedule(w io.Writer, cat *catalog.Catalog) error {
+func Generate(w io.Writer, cat *catalog.Catalog) error {
 
 	courseNames := cat.CourseNames()
 	length := len(courseNames)
