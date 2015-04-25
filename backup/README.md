@@ -1,11 +1,11 @@
-# Class Scheduler #
+# Solution to Clever Coding Challenge — Class Scheduler #
 
 The program reads a JSON file with course names and prerequisites and prints a course schedule that satisfies these conditions:
 
 - All courses are taken
 - No course is taken until all its prerequisites are satisfied.
 
-
+This code is a solution to the Clever Course Scheduling Coding Challenge.
 
 ## How to Use ##
 
