@@ -1,20 +1,20 @@
 package schedule
 
 import (
-	"bitbucket.org/maxheiber/coding-challenge/catalog"
+	"bitbucket.org/maxheiber/coding-challenge/course"
 	"fmt"
 	"io"
 )
 
-// schedule.Generate takes a catalog and writes
+// schedule.Generate takes an array of courses and writes
 // a list of courses in order so that all of the
 // prerequistes will be satisfied
 
 type scheduler struct {
-	*catalog.Catalog
-	w         io.Writer
-	isHandled map[string]bool
-	isPending map[string]bool
+	w             io.Writer
+	coursesByName map[string]*course.Course
+	isHandled     map[string]bool
+	isPending     map[string]bool
 }
 
 func (s *scheduler) writeln(str string) {
@@ -22,55 +22,55 @@ func (s *scheduler) writeln(str string) {
 	s.w.Write(line)
 }
 
-func (s *scheduler) ProcessCourseName(courseName string) error {
-
-	course := s.GetCourse(courseName)
-
-	if s.isHandled[courseName] {
+func (s *scheduler) ProcessCourse(course *course.Course) error {
+	if s.isHandled[course.Name] {
 		return nil
 	}
 
-	if s.isPending[courseName] {
-		err := fmt.Errorf("Error: Cyclical dependency. Taking course \"%v\" requires first taking course \"%v\"\n", courseName, courseName)
+	if s.isPending[course.Name] {
+		err := fmt.Errorf("Error: Cyclical dependency. Taking course \"%v\" requires first taking course \"%v\"\n", course.Name, course.Name)
 		return err
 	}
-
 	s.isPending[course.Name] = true
 	for _, prerequisite := range course.Prerequisites {
-		prerequisiteCourse := s.GetCourse(prerequisite)
+		prerequisiteCourse := s.coursesByName[prerequisite]
 		if prerequisiteCourse == nil {
 			return fmt.Errorf("Error: \"%v\" is listed as a prerequisite of \"%v\" but is not in the list of courses\n", prerequisite, course.Name)
 		}
-
-		err := s.ProcessCourseName(prerequisiteCourse.Name)
+		err := s.ProcessCourse(prerequisiteCourse)
 		if err != nil {
 			return err
 		}
 	}
 
-	s.isPending[courseName] = false
+	s.isPending[course.Name] = false
 
-	s.writeln(courseName)
+	s.writeln(course.Name)
 
-	s.isHandled[courseName] = true
+	s.isHandled[course.Name] = true
 
 	return nil
 }
 
-func Generate(w io.Writer, cat *catalog.Catalog) error {
+func Generate(w io.Writer, courses []course.Course) error {
+	length := 0
 
-	courseNames := cat.CourseNames()
-	length := len(courseNames)
+	coursesByName := make(map[string]*course.Course)
+
+	for index, course := range courses {
+		length = index
+		coursesByName[course.Name] = &courses[index]
+	}
 
 	s := &scheduler{
-		cat,
 		w,
+		coursesByName,
 		make(map[string]bool, length), //record of which courses have been taken
 		make(map[string]bool, length), //record of current course for which we're satisfying prereqs
 	}
 
-	for _, courseName := range courseNames {
-		err := s.ProcessCourseName(courseName)
+	for _, course := range courses {
+		err := s.ProcessCourse(&course)
 		if err != nil {
 			return err
 		}

@@ -1,7 +1,7 @@
 package schedule_test
 
 import (
-	"bitbucket.org/maxheiber/coding-challenge/catalog"
+	"bitbucket.org/maxheiber/coding-challenge/course"
 	"bitbucket.org/maxheiber/coding-challenge/schedule"
 	"bytes"
 	// "fmt"
@@ -45,14 +45,13 @@ func TestResultsValid(t *testing.T) {
 
 }
 
-func setup(jsonFile string) (*catalog.Catalog, error) {
+func setup(jsonFile string) ([]course.Course, error) {
 	data, err := ioutil.ReadFile(jsonFile)
 	if err != nil {
 		panic(err)
 	}
-	cat := new(catalog.Catalog)
-	err = catalog.UnmarshalJSON(cat, data)
-	return cat, err
+	courses, err := course.UnmarshalJSON(data)
+	return courses, err
 }
 
 func (tCase *testCase) run(t *testing.T) {
@@ -65,6 +64,7 @@ func (tCase *testCase) run(t *testing.T) {
 	//Writing to a buf so we can get the course schedule as a []string
 	sw := new(stringwriter.StringW)
 	err = schedule.Generate(sw, cat)
+	// fmt.Println(sw.Val())
 	if err != nil && !strings.Contains(err.Error(), tCase.errMsg) {
 		t.Errorf("Expected %v to contain %v", err, tCase.errMsg)
 	}
@@ -81,22 +81,28 @@ func (tCase *testCase) run(t *testing.T) {
 	}
 }
 
-func testValidLength(cat *catalog.Catalog, results []string, t *testing.T) {
-	if len(results) != len(cat.CourseNames()) {
-		t.Errorf("Expected course schedule length to equal number of courses: \n%v%v\n%v%v", results, len(results), cat.CourseNames(), len(cat.CourseNames()))
+func testValidLength(courses []course.Course, results []string, t *testing.T) {
+	if len(results) != len(courses) {
+		t.Errorf("Expected course schedule length to equal number of courses: \n%v%v\n%v%v", results, len(results), len(courses))
 	}
 }
 
-func testPrereqsSatisfied(cat *catalog.Catalog, results []string, t *testing.T) {
+func testPrereqsSatisfied(courses []course.Course, results []string, t *testing.T) {
 
 	isTaken := make(map[string]bool)
 
 	//uncomment to test this test
 	//results[0], results[len(results)-1] = results[len(results)-1], results[0]
 
+	byName := make(map[string]course.Course)
+
+	for _, course := range courses {
+		byName[course.Name] = course
+	}
+
 	for _, cname := range results {
 		isTaken[cname] = true
-		prereqs := cat.GetCourse(cname).Prerequisites
+		prereqs := byName[cname].Prerequisites
 		for _, prereqName := range prereqs {
 			if !isTaken[prereqName] {
 				t.Errorf("Took course \"%v\" before prereq \"%v\"", cname, prereqName)
@@ -105,7 +111,7 @@ func testPrereqsSatisfied(cat *catalog.Catalog, results []string, t *testing.T) 
 	}
 }
 
-var testCat1000 = genTestCatalog(1000)
+var testCat1000 = genTestCourses(1000)
 
 func BenchmarkSchedule1000(b *testing.B) {
 	cat := testCat1000
@@ -113,7 +119,7 @@ func BenchmarkSchedule1000(b *testing.B) {
 	schedule.Generate(buf, cat)
 }
 
-var testCat2000 = genTestCatalog(2000)
+var testCat2000 = genTestCourses(2000)
 
 func BenchmarkSchedule2000(b *testing.B) {
 	cat := testCat2000
@@ -121,7 +127,7 @@ func BenchmarkSchedule2000(b *testing.B) {
 	schedule.Generate(buf, cat)
 }
 
-var testCat4000 = genTestCatalog(4000)
+var testCat4000 = genTestCourses(4000)
 
 func BenchmarkSchedule4000(b *testing.B) {
 	cat := testCat4000
@@ -129,7 +135,7 @@ func BenchmarkSchedule4000(b *testing.B) {
 	schedule.Generate(buf, cat)
 }
 
-var testCat8000 = genTestCatalog(8000)
+var testCat8000 = genTestCourses(8000)
 
 func BenchmarkSchedule8000(b *testing.B) {
 	cat := testCat8000
@@ -137,7 +143,7 @@ func BenchmarkSchedule8000(b *testing.B) {
 	schedule.Generate(buf, cat)
 }
 
-var testCat16000 = genTestCatalog(16000)
+var testCat16000 = genTestCourses(16000)
 
 func BenchmarkSchedule16000(b *testing.B) {
 	cat := testCat16000
@@ -145,7 +151,7 @@ func BenchmarkSchedule16000(b *testing.B) {
 	schedule.Generate(buf, cat)
 }
 
-func names(courses []catalog.Course) []string {
+func names(courses []course.Course) []string {
 	names := make([]string, 0, len(courses))
 	for _, crse := range courses {
 		names = append(names, crse.Name)
@@ -153,13 +159,13 @@ func names(courses []catalog.Course) []string {
 	return names
 }
 
-func genTestCatalog(courseCount int) *catalog.Catalog {
-	courses := make([]catalog.Course, 0, courseCount)
+func genTestCourses(courseCount int) (courses []course.Course) {
+	courses = make([]course.Course, 0, courseCount)
 
 	for i := courseCount - 1; i >= 0; i-- {
-		crse := catalog.Course{Name: strconv.Itoa(i), Prerequisites: names(courses)}
+		crse := course.Course{Name: strconv.Itoa(i), Prerequisites: names(courses)}
 		courses = append(courses, crse)
 	}
 
-	return catalog.New(courses)
+	return
 }
