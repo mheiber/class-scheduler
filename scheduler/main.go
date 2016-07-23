@@ -1,8 +1,9 @@
 package main
 
 import (
-	"bitbucket.org/maxheiber/coding-challenge/catalog"
+	"bitbucket.org/maxheiber/coding-challenge/course"
 	"bitbucket.org/maxheiber/coding-challenge/schedule"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -20,11 +21,11 @@ func main() {
 	jsonData := readFile(jsonFile)
 
 	//a catalog maps course names to courses
-	cat := getCatalog(jsonData)
+	courses := getCourses(jsonData)
 
 	//Prints courses to Stdout, not taking a course
 	//until prerequisites are satisfied
-	err := schedule.Generate(os.Stdout, cat)
+	err := schedule.Generate(os.Stdout, courses)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
 		os.Exit(2)
@@ -40,13 +41,12 @@ func readFile(jsonFile string) []byte {
 	return data
 }
 
-func getCatalog(jsonData []byte) *catalog.Catalog {
-	cat := new(catalog.Catalog)
-	err := catalog.UnmarshalJSON(cat, jsonData)
+func getCourses(jsonData []byte) (courses []course.Course) {
+	courses = make([]course.Course, 1)
+	err := json.Unmarshal(jsonData, &courses)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error:%v\n", err)
-		os.Exit(2)
+		fmt.Fprint(os.Stderr, "Error: Invalid course list. Each course must have a name and an array of prerequisites")
 	}
 
-	return cat
+	return
 }
