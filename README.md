@@ -68,14 +68,9 @@ If all the course's prerequisites are satisfied, print the course name and mark 
 Otherwise, for each of the courses unsatisfied prerequisites, repeat the procedure for that prerequisite.
 Repeat the procedure for the next course until no courses remain.
 
-#### Choices ###
-
-Since the code will be assessed partially based on correctness and speed, I needed to use a fast language. I also needed a language conducive to good code style and architecture. For those reasons, [Go](golang.org) is a good fit. This required me to learn how to write correct, clear, and idiomatic Go.
-
-A challenge was determining the right level of abstraction to use. I could have skipped creating the `catalog.Catalog` struct type and instead just used a map from strings to `catalog.Course`s. This would have spared the need to implement the `catalog#CourseNames` and `catalog#GetCourse` getters. It was a close judgment call, but I used a custom struct type because it enabled me to implement the `json.Unmarshaler` interface and have clear and idiomatic code for reading in JSON files (see `src/scheduler/main.go`).
-
-<a name="performance"></a>
 ### Performance ###
+
+**Terrible** (On^2). This is a topological sorting problem, for which there are [several simple linear time algorithms](https://en.wikipedia.org/wiki/Topological_sorting#Algorithms) that I should have used instead.
 
 The worst-case inputs, performance wise, have the maximum number of prerequisites per course. This makes them "triangular":
 
@@ -85,8 +80,8 @@ The worst-case inputs, performance wise, have the maximum number of prerequisite
 {"course 1": "prerequisites": []}
 
 
-Where the number of courses is `n`, the number of steps to produce a list of courses in order that respects prerequisites is roughly `(n^2 + n)/2`. That means that worst-case growth in running time is [*(O(n^2))*](http://en.wikipedia.org/wiki/Triangular_number). This gibes with what I saw in my benchmarks: number of calls to `schedule.Scheduler#ProcessCourseName` fits a quadratic regression line. See `documentation-assets/performance-plog.png`.
+Where the number of courses is `n`, the number of steps to produce a list of courses in order that respects prerequisites is roughly `(n^2 + n)/2`. That means that worst-case growth in running time is *(O(n^2))*. This gibes with what I saw in my benchmarks: number of calls to `schedule.Scheduler#ProcessCourseName` fits a quadratic regression line. See `documentation-assets/performance-plog.png`.
 
 You can run the benchmarks from the `schedule` directory by running `go test -bench=.`
 
-
+Also, if I were to do this again I'd use [streaming JSON parsing](https://golang.org/pkg/encoding/json/#example_Decoder_Decode_stream), which I'm not sure was a thing in the Go standard library when I wrote this.
